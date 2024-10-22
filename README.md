@@ -2,7 +2,7 @@
 
 VLC extension to more easily curate my Family Guy Funny Moments.
 
-![example.png](example.png)
+![example.png](images/example.png)
 
 ## Installation
 
@@ -12,6 +12,8 @@ VLC extension to more easily curate my Family Guy Funny Moments.
    ```
    C:\Program Files\VideoLAN\VLC\lua\extensions\
    ```
+
+   Technically `install.bat` does it for you but it also does other weird stuff so it's most useful for development.
 
 3. Edit the very first line of `VLC-Clip.luac` to the destination you want the clips. You probably don't want this:
    ```
@@ -25,18 +27,18 @@ VLC extension to more easily curate my Family Guy Funny Moments.
 
 1. Go to View -> VLC Clip.
 
-   ![open.png](open.png)
+   ![open.png](images/open.png)
 
 2. Click the "Mark Start" and "Mark End" buttons at the start/end timestamps you want for your clip.
 
-   ![mark_end.png](mark_end.png)
+   ![mark_end.png](images/mark_end.png)
 
 3. If you messed up and you want to redo it, you can restart by clicking "Mark Start" after you've already marked the
    end.
 4. When you've set the start/end timestamps, export the clip by clicking "Export".
 5. To reopen the dialog after you close it, enter the menu View --> VLC Clip --> Open Dialog.
 
-   ![reopen.png](reopen.png)
+   ![reopen.png](images/reopen.png)
 
 The plugin is pretty quick and dirty (the VLC extension API documentation is awful). Just don't do weird edge-cases and
 you'll be fine.
