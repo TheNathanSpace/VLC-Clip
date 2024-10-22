@@ -1,9 +1,9 @@
+parentPath = "C:\\Users\\nathan\\Videos\\VLC Exports\\"
 dialog = nil
 startTime = nil
 endTime = nil
 name = nil
 fullPath = nil
-parentPath = "C:\\Users\\nathan\\Videos\\VLC Exports\\"
 
 local function get_play_time()
     -- https://github.com/XaF/TraktForVLC/blob/7851368d7ce62a15bb245fc078f3eab201c12357/trakt.lua#L1638
