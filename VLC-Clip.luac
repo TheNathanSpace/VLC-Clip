@@ -1,0 +1,152 @@
+dialog = nil
+startTime = nil
+endTime = nil
+name = nil
+fullPath = nil
+parentPath = "C:\\Users\\nathan\\Videos\\VLC Exports\\"
+
+local function get_play_time()
+    -- https://github.com/XaF/TraktForVLC/blob/7851368d7ce62a15bb245fc078f3eab201c12357/trakt.lua#L1638
+    if not vlc.input.is_playing() then
+        return nil
+    end
+    -- Compute the current play time using the position and the length
+    -- as the result is more precise than using directly 'time'
+    local play_time = (vlc.var.get(vlc.object.input(), "position") *
+            vlc.var.get(vlc.object.input(), "length"))
+    play_time = play_time / 1000000.
+    return play_time
+end
+
+local function filenameWithoutExtension(filename)
+    return filename:match("^(.+)%..+$") or filename
+end
+
+local function uri_to_filepath(uri)
+    -- Check if the URI starts with 'file://'
+    if not uri:match("^file://") then
+        error("Invalid file URI")
+    end
+
+    -- Remove the 'file://' prefix
+    local filepath = uri:sub(8)
+
+    -- If the filepath starts with a '/', remove it (for Windows compatibility)
+    if filepath:sub(1, 1) == '/' then
+        filepath = filepath:sub(2)
+    end
+
+    -- Replace any '%' characters with their corresponding ASCII characters
+    filepath = filepath:gsub("%%([0-9A-Fa-f][0-9A-Fa-f])", function(hex)
+        return string.char(tonumber(hex, 16))
+    end)
+
+    return filepath
+end
+
+function click_Clip()
+    local player_item = vlc.input.item()
+    if not player_item then
+        log:set_text("No media playing")
+        return
+    end
+    log:set_text("")
+
+    if (not startTime) or (startTime and endTime) then
+        if (not startTime) then
+            vlc.msg.err("No start time!")
+        end
+        if (startTime and endTime) then
+            vlc.msg.err("Start time AND end time (resetting)!")
+        end
+        name = filenameWithoutExtension(player_item:name())
+        fullPath = uri_to_filepath(player_item:uri())
+        startTime = get_play_time()
+        endTime = nil
+        log:set_text("File: " .. name .. "<br/>" .. "Start timestamp: " .. tostring(startTime))
+        clip_button = dialog:add_button("Mark End", click_Clip, 1, 2)
+        return
+    elseif startTime and not endTime then
+        vlc.msg.err("Start time, but no end time!")
+        endTime = get_play_time()
+        log:set_text("File: " .. name .. "<br/>" .. "Start timestamp: " .. tostring(startTime) .. "<br/>" .. "End timestamp: " .. tostring(endTime))
+        clip_button = dialog:add_button("Mark Start", click_Clip, 1, 2)
+        return
+    end
+end
+
+function click_Export()
+    if startTime and endTime then
+        vlc.msg.err("Start time AND end time (exporting)!")
+        local exportedTo = parentPath .. name .. "_clip_" .. startTime .. "-" .. endTime .. ".mp4"
+        local command = "ffmpeg -i \"" .. fullPath .. "\" -ss " .. tostring(startTime) .. " -t " .. tostring(endTime - startTime) .. " -c:a copy \"" .. exportedTo .. "\""
+        vlc.msg.err("Command: " .. command)
+        os.execute(command)
+
+        clip_button = dialog:add_button("Mark Start", click_Clip, 1, 2)
+        log:set_text("--- MOST RECENT EXPORT ---" .. "<br/>" .. "File: " .. name .. "<br/>" .. "Start timestamp: " .. tostring(startTime) .. "<br/>" .. "End timestamp: " .. tostring(endTime) .. "<br/>" .. "Exported to: " .. exportedTo)
+        name = nil
+        fullPath = nil
+        startTime = nil
+        endTime = nil
+        return
+    end
+end
+
+function createDialog()
+    local dialog = vlc.dialog("VLC Clip")
+    instructions = dialog:add_label("Click to mark clip start/stop:", 1, 1)
+    clip_button = dialog:add_button("Mark Start", click_Clip, 1, 2)
+    export_button = dialog:add_button("Export", click_Export, 2, 2)
+    log = dialog:add_html("", 1, 3, 2)
+    return dialog
+end
+
+function activate()
+    if not dialog then
+        dialog = createDialog()
+    else
+        dialog:show()
+    end
+end
+
+function deactivate()
+end
+
+function input_changed()
+    startTime = nil
+    endTime = nil
+    name = nil
+    log:set_text("")
+end
+
+function playing_changed()
+    -- related to capabilities={"playing-listener"} in descriptor()
+    -- triggered by Pause/Play media input event
+end
+
+function menu()
+    return { "Open Dialog" }
+end
+-- Function triggered when an element from the menu is selected
+function trigger_menu(id)
+    if (id == 1) then
+        dialog:show()
+    end
+end
+
+function close()
+    dialog:hide()
+end
+
+function descriptor()
+    return {
+        title = "VLC Clip",
+        version = "1.0",
+        author = "TheNathanSpace",
+        url = 'https://github.com/TheNathanSpace/VLC-Clip',
+        shortdesc = "VLC Clip",
+        description = "VLC extension to more easily curate my Family Guy Funny Moments",
+        capabilities = { "menu", "input-listener", "meta-listener", "playing-listener" }
+    }
+end
