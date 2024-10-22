@@ -25,7 +25,7 @@ VLC extension to more easily curate my Family Guy Funny Moments.
 
 ## Usage
 
-1. Go to View -> VLC Clip.
+1. Open the dialog with View -> VLC Clip.
 
    ![open.png](images/open.png)
 
@@ -40,5 +40,5 @@ VLC extension to more easily curate my Family Guy Funny Moments.
 
    ![reopen.png](images/reopen.png)
 
-The plugin is pretty quick and dirty (the VLC extension API documentation is awful). Just don't do weird edge-cases and
-you'll be fine.
+The plugin is pretty quick and dirty (the VLC extension API documentation is awful). Just don't do any weird edge-cases
+and you'll be fine.
