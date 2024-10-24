@@ -81,7 +81,7 @@ function click_Export()
         local exportedTo = parentPath .. name .. "_clip_" .. startTime .. "-" .. endTime .. ".mp4"
         local command = "ffmpeg -i \"" .. fullPath .. "\" -ss " .. tostring(startTime) .. " -t " .. tostring(endTime - startTime) .. " -c:a copy \"" .. exportedTo .. "\""
         vlc.msg.err("Command: " .. command)
-        os.execute(command)
+        io.popen(command)
 
         clip_button = dialog:add_button("Mark Start", click_Clip, 1, 2)
         log:set_text("--- MOST RECENT EXPORT ---" .. "<br/>" .. "File: " .. name .. "<br/>" .. "Start timestamp: " .. tostring(startTime) .. "<br/>" .. "End timestamp: " .. tostring(endTime) .. "<br/>" .. "Exported to: " .. exportedTo)
