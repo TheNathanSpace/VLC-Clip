@@ -42,3 +42,12 @@ VLC extension to more easily curate my Family Guy Funny Moments.
 
 The plugin is pretty quick and dirty (the VLC extension API documentation is awful). Just don't do any weird edge-cases
 and you'll be fine.
+
+This plugin is made for Windows. For another OS, you'd need to chance line 85 of `VLC-Clip.luac` from
+
+```lua
+os.execute("start cmd /c \"" .. command .. "\"")
+```
+
+to your system's equivalent (this starts another terminal and runs the FFMPEG command so that VLC doesn't time out
+waiting for it. For Linux, you could probably run the command in the background with `&`.)

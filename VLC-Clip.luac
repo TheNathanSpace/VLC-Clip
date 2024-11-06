@@ -25,7 +25,7 @@ end
 local function uri_to_filepath(uri)
     -- Check if the URI starts with 'file://'
     if not uri:match("^file://") then
-        error("Invalid file URI")
+        infoor("Invalid file URI")
     end
 
     -- Remove the 'file://' prefix
@@ -54,10 +54,10 @@ function click_Clip()
 
     if (not startTime) or (startTime and endTime) then
         if (not startTime) then
-            vlc.msg.err("No start time!")
+            vlc.msg.info("No start time!")
         end
         if (startTime and endTime) then
-            vlc.msg.err("Start time AND end time (resetting)!")
+            vlc.msg.info("Start time AND end time (resetting)!")
         end
         name = filenameWithoutExtension(player_item:name())
         fullPath = uri_to_filepath(player_item:uri())
@@ -67,7 +67,7 @@ function click_Clip()
         clip_button = dialog:add_button("Mark End", click_Clip, 1, 2)
         return
     elseif startTime and not endTime then
-        vlc.msg.err("Start time, but no end time!")
+        vlc.msg.info("Start time, but no end time!")
         endTime = get_play_time()
         log:set_text("File: " .. name .. "<br/>" .. "Start timestamp: " .. tostring(startTime) .. "<br/>" .. "End timestamp: " .. tostring(endTime))
         clip_button = dialog:add_button("Mark Start", click_Clip, 1, 2)
@@ -77,11 +77,12 @@ end
 
 function click_Export()
     if startTime and endTime then
-        vlc.msg.err("Start time AND end time (exporting)!")
+        vlc.msg.info("Start time AND end time (exporting)!")
         local exportedTo = parentPath .. name .. "_clip_" .. startTime .. "-" .. endTime .. ".mp4"
         local command = "ffmpeg -i \"" .. fullPath .. "\" -ss " .. tostring(startTime) .. " -t " .. tostring(endTime - startTime) .. " -c:a copy \"" .. exportedTo .. "\""
-        vlc.msg.err("Command: " .. command)
-        io.popen(command)
+        vlc.msg.info("Command: " .. command)
+
+        os.execute("start cmd /c \"" .. command .. "\"")
 
         clip_button = dialog:add_button("Mark Start", click_Clip, 1, 2)
         log:set_text("--- MOST RECENT EXPORT ---" .. "<br/>" .. "File: " .. name .. "<br/>" .. "Start timestamp: " .. tostring(startTime) .. "<br/>" .. "End timestamp: " .. tostring(endTime) .. "<br/>" .. "Exported to: " .. exportedTo)
